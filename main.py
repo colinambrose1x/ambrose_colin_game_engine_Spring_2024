@@ -1,6 +1,11 @@
 # This file was created by Colin Ambrose
 
 # importing a items from a file
+
+# rules, freedom, verb
+# scrolling map
+#jumping, breaking walls
+# another player
 import pygame as pg
 from setting import *
 from sprites import *
@@ -23,7 +28,7 @@ class Game:
     def load_data(self):
         game_folder = path.dirname(__file__)
         img_folder = path.join(game_folder, 'images')
-        self.player_img = pg.image.load(path.join(img_folder, 'Untitled.png')).comvert_alpha()
+        self.player_img = pg.image.load(path.join(img_folder, 'rubberduckie.png')).convert_alpha()
         self.map_data = []
         '''
         The with statement is a context manager in Python. 
@@ -90,7 +95,7 @@ class Game:
             self.screen.fill(BGCOLOR)
             self.draw_grid()
             self.all_sprites.draw(self.screen)
-            self.draw_text(self.screen, str(self.player.moneybag), 64, WHITE, 1, 1)
+            self.draw_text(self.screen, str(self.p1.moneybag), 64, WHITE, 1, 1)
 
             pg.display.flip()
 
