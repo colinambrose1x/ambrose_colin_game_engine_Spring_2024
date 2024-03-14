@@ -47,6 +47,7 @@ class Game:
         self.coins = pg.sprite.Group()
         self.deathblocks = pg.sprite.Group()
         self.speedboost = pg.sprite.Group()
+        self.speedbump = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)
         # for x in range(10, 20):
         #     Wall(self, x, 5)
@@ -68,6 +69,8 @@ class Game:
                     Deathblock(self, col, row)
                 if tile == 'S':
                     Speedboost(self, col, row)
+                if tile == 'B':
+                    Speedbump(self, col, row)
 
     def run(self):
         # 
@@ -123,4 +126,4 @@ while True:
     g.new()
     g.run()
     # g.show_go_screen()
-    vfdgd
+    

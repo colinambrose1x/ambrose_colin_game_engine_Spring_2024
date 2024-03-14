@@ -72,10 +72,14 @@ class Player(pg.sprite.Sprite):
         if hits:
             if str(hits[0].__class__.__name__) == "Coin":
                 self.moneybag += 1
+            # if str(hits[0].__class__.__name__) == "Projectile":
+            #     self.moneybag += 1
             if str(hits[0].__class__.__name__) == "Deathblock":
                 self.detath()
             if str(hits[0].__class__.__name__) == "Speedboost":
-                self.speed += 300
+                self.speed += 200
+            if str(hits[0].__class__.__name__) == "Speedbump":
+                self.speed -= 150
 
     def update(self):
         self.get_keys()
@@ -88,8 +92,10 @@ class Player(pg.sprite.Sprite):
         # add collision later
         self.collide_with_walls('y')
         self.collide_with_group(self.game.coins, True)
+        # self.collide_with_group(self.game.projectiles, True)
         self.collide_with_group(self.game.deathblocks, False)
         self.collide_with_group(self.game.speedboost, True)
+        self.collide_with_group(self.game.speedbump, True)
 
         # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
         # if coin_hits:
@@ -113,6 +119,19 @@ class Wall(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+    
+# class Projectile(pg.sprite.Sprite):
+#     def __init__(self, game, x, y):
+#         self.groups = game.all_sprites, game.projectiles
+#         pg.sprite.Sprite.__init__(self, self.groups)
+#         self.game = game
+#         self.image = pg.Surface((TILESIZE, TILESIZE))
+#         self.image.fill(WHITE)
+#         self.rect = self.image.get_rect()
+#         self.x = x
+#         self.y = y
+#         self.rect.x = x * TILESIZE
+#         self.rect.y = y * TILESIZE
 
 class Coin(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -143,6 +162,19 @@ class Deathblock(pg.sprite.Sprite):
 class Speedboost (pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.speedboost
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
+class Speedbump (pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.speedbump
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
