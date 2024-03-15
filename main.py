@@ -12,6 +12,25 @@ from sprites import *
 import sys
 from os import path 
 from random import randint
+from math import floor
+
+#cooldown class
+# class Cooldown():
+#     def __init__(self):
+#         self.current_time = 0
+#         self.event_time = 0
+#         self.delta = 0
+#     def ticking(self):
+#         self.current_time = floor((pg.time.get_ticks())/1000)
+#         self.delta = self.current_time - self.event_time
+#     def countdown(self, x):
+#         x = x - self.delta
+#         if x != None:
+#             return x
+#     def event_reset(self):
+#         self.event_time = floor((pg.time.get_ticks())/1000)
+#     def timer(self):
+#         self.current_time = floor((pg.time.get_ticks())/1000)
 
 # create a game class 
 class Game:
@@ -48,6 +67,7 @@ class Game:
         self.deathblocks = pg.sprite.Group()
         self.speedboost = pg.sprite.Group()
         self.speedbump = pg.sprite.Group()
+        self.mobs = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)
         # for x in range(10, 20):
         #     Wall(self, x, 5)
@@ -71,6 +91,8 @@ class Game:
                     Speedboost(self, col, row)
                 if tile == 'B':
                     Speedbump(self, col, row)
+                if tile == 'M':
+                    Mob(self, col, row)
 
     def run(self):
         # 
@@ -85,12 +107,15 @@ class Game:
          sys.exit()
     def update(self):
         self.all_sprites.update()
-    
+        # self.test_timer.ticking()
+
     def draw_grid(self):
          for x in range(0, WIDTH, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
          for y in range(0, HEIGHT, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
+
+    # shows clock on screen
     def draw_text(self, surface, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -103,13 +128,23 @@ class Game:
             self.draw_grid()
             self.all_sprites.draw(self.screen)
             self.draw_text(self.screen, str(self.p1.moneybag), 64, WHITE, 1, 1)
-
+            #self.draw_text(self.screen, str(self.test_timer.countdown(45)), 24, WHITE, WIDTH/2 - 32, 2)
             pg.display.flip()
+
+
+    # def draw_text(self, surface, text, size, color, x, y):
+    #     font_name = pg.font.match('arial')
+    #     font = pg.font.Font(font_name, size)
+    #     text_surface = font.render(text, True, color)
+    #     text_rect = text_surface.get_rect()
+    #     text_rect.topleft = (x,y)
+    #     surface.blit(text_surface, text_rect)
 
     def events(self):
          for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
+    
             # if event.type == pg.KEYDOWN:
             #     if event.key == pg.K_LEFT:
             #         self.player.move(dx=-1)
@@ -121,6 +156,7 @@ class Game:
             #         self.player.move(dy=1)
 ####################### Instantiate game... ###################
 g = Game()
+
 # g.show_go_screen()
 while True:
     g.new()

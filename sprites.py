@@ -47,6 +47,9 @@ class Player(pg.sprite.Sprite):
     #             return True
     #     return False
             
+
+
+
     def collide_with_walls(self, dir):
         if dir == 'x':
             hits = pg.sprite.spritecollide(self, self.game.walls, False)
@@ -80,6 +83,8 @@ class Player(pg.sprite.Sprite):
                 self.speed += 200
             if str(hits[0].__class__.__name__) == "Speedbump":
                 self.speed -= 150
+            if str(hits[0].__class__.__name__) == "Mob":
+                self.detath()
 
     def update(self):
         self.get_keys()
@@ -96,6 +101,7 @@ class Player(pg.sprite.Sprite):
         self.collide_with_group(self.game.deathblocks, False)
         self.collide_with_group(self.game.speedboost, True)
         self.collide_with_group(self.game.speedbump, True)
+        self.collide_with_group(self.game.mobs, True)
 
         # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
         # if coin_hits:
@@ -103,8 +109,21 @@ class Player(pg.sprite.Sprite):
 
 
 
-
-
+class Mob(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.mobs
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(ORANGE)
+        #self.image = self.game.mob_img
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        # self.vx, self.vy = 100, 100
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.speed = 100
 
 
 class Wall(pg.sprite.Sprite):
