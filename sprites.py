@@ -101,7 +101,7 @@ class Player(pg.sprite.Sprite):
         self.collide_with_group(self.game.deathblocks, False)
         self.collide_with_group(self.game.speedboost, True)
         self.collide_with_group(self.game.speedbump, True)
-        self.collide_with_group(self.game.mobs, True)
+        self.collide_with_group(self.game.mobs, False)
 
         # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
         # if coin_hits:
@@ -120,11 +120,27 @@ class Mob(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
-        # self.vx, self.vy = 100, 100
+        self.vx, self.vy = 100, 100
         self.x = x * TILESIZE
         self.y = y * TILESIZE
-        self.speed = 100
+        self.speed = 1
 
+    def update(self):
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+
+        if self.rect.x < self.rect.x:
+            self.vx = 100
+        # if self.rect.x > self.game.player.rect.x:
+        #     self.vx = -100    
+        if self.rect.y < self.rect.y:
+            self.vy = 100
+        # if self.rect.y > self.game.player.rect.y:
+        #     self.vy = -100
+        self.rect.x = self.x
+        #self.collide_with_walls('x')
+        self.rect.y = self.y
+       # self.collide_with_walls('y')
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
