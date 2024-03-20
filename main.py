@@ -53,6 +53,7 @@ class Game:
         self.load_data()
     def load_data(self):
         game_folder = path.dirname(__file__)
+        # pull images from folders 
         img_folder = path.join(game_folder, 'images')
         self.player_img = pg.image.load(path.join(img_folder, 'rubberduckie.png')).convert_alpha()
         self.map_data = []
@@ -102,7 +103,7 @@ class Game:
                     Mob(self, col, row)
 
     def run(self):
-        # 
+        # runs game
         self.playing = True
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000
@@ -116,6 +117,7 @@ class Game:
         self.all_sprites.update()
         # self.test_timer.ticking()
 
+    # makes grid appear on screen
     def draw_grid(self):
          for x in range(0, WIDTH, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))

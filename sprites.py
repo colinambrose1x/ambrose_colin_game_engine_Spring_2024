@@ -19,6 +19,7 @@ class Player(pg.sprite.Sprite):
         self.y = y * TILESIZE
         self.moneybag = 0
         self.speed = 300
+        #finds player spawn
     def detath(self):
         self.x = self.game.p1col*TILESIZE
         self.y = self.game.p1row*TILESIZE
@@ -49,7 +50,7 @@ class Player(pg.sprite.Sprite):
             
 
 
-
+    #player wall collisions 
     def collide_with_walls(self, dir):
         if dir == 'x':
             hits = pg.sprite.spritecollide(self, self.game.walls, False)
@@ -70,6 +71,7 @@ class Player(pg.sprite.Sprite):
                 self.vy = 0
                 self.rect.y = self.y
 
+    # player group collisions
     def collide_with_group(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
@@ -91,10 +93,10 @@ class Player(pg.sprite.Sprite):
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
         self.rect.x = self.x
-        # add collision later
+       
         self.collide_with_walls('x')
         self.rect.y = self.y
-        # add collision later
+        
         self.collide_with_walls('y')
         self.collide_with_group(self.game.coins, True)
         # self.collide_with_group(self.game.projectiles, True)
@@ -108,6 +110,7 @@ class Player(pg.sprite.Sprite):
         #     print("I got a coin")
 
 
+# classes for game
 
 class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -125,10 +128,31 @@ class Mob(pg.sprite.Sprite):
         self.y = y * TILESIZE
         self.speed = 1
 
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vx > 0:
+                    self.x = hits[0].rect.left - self.rect.width
+                if self.vx < 0:
+                    self.x = hits[0].rect.right
+                self.vx = 0
+                self.rect.x = self.x
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = 0
+                self.rect.y = self.y
+
     def update(self):
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
 
+        #mob movement
         if self.rect.x < self.rect.x:
             self.vx = 100
         # if self.rect.x > self.game.player.rect.x:
@@ -138,9 +162,9 @@ class Mob(pg.sprite.Sprite):
         # if self.rect.y > self.game.player.rect.y:
         #     self.vy = -100
         self.rect.x = self.x
-        #self.collide_with_walls('x')
+        self.collide_with_walls('x')
         self.rect.y = self.y
-       # self.collide_with_walls('y')
+        self.collide_with_walls('y')
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
