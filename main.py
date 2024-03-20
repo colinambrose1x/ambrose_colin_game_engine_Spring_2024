@@ -6,6 +6,13 @@
 # scrolling map
 #jumping, breaking walls
 # another player
+'''
+Sources:
+Kids can code: https://github.com/kidscancode/pygame_tutorials/tree/master/tilemap/part%2001 
+Stack overflow
+Redit
+TechwithTim
+'''
 import pygame as pg
 from setting import *
 from sprites import *
