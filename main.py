@@ -12,6 +12,12 @@ Kids can code: https://github.com/kidscancode/pygame_tutorials/tree/master/tilem
 Stack overflow
 Redit
 TechwithTim
+
+BETA Goals:
+*animated spirtes
+
+Primary Goal: add a weapon
+
 '''
 import pygame as pg
 from setting import *
@@ -55,7 +61,7 @@ class Game:
         game_folder = path.dirname(__file__)
         # pull images from folders 
         img_folder = path.join(game_folder, 'images')
-        self.player_img = pg.image.load(path.join(img_folder, 'rubberduckie.png')).convert_alpha()
+        self.player_img = pg.image.load(path.join(img_folder, 'theBell.png')).convert_alpha()
         self.map_data = []
         '''
         The with statement is a context manager in Python. 
@@ -81,6 +87,7 @@ class Game:
         #     Wall(self, x, 5)
         for row, tiles in enumerate(self.map_data):
             print(row)
+            # use a variable and it shows up on the game where it has it in map.txt
             for col, tile in enumerate(tiles):
                 print(col)
                 if tile == '1':
@@ -133,6 +140,7 @@ class Game:
         text_rect.topleft = (x*TILESIZE,y*TILESIZE)
         surface.blit(text_surface, text_rect)
     def draw(self):
+        # draws the screen of the game
             self.screen.fill(BGCOLOR)
             self.draw_grid()
             self.all_sprites.draw(self.screen)

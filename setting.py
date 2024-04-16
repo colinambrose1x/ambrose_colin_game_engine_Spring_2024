@@ -1,6 +1,8 @@
 # dimensions of the game
 WIDTH = 1024
 HEIGHT = 768
+
+# size of the tiles
 TILESIZE = 32
 PLAYER_SPEED = 300
 FPS = 30
