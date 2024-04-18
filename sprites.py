@@ -4,15 +4,18 @@
 from os import path
 import pygame as pg
 from setting import *
+from utils import *
 
-
+vec =pg.math.Vector2
 
 # needed for animated sprite
 SPRITESHEET = "theBell.png"
+SPRITESHEET2 = "testImage.png"
 # needed for animated sprite
 game_folder = path.dirname(__file__)
 img_folder = path.join(game_folder, 'images')
 # needed for animated sprite
+
 class Spritesheet:
     # utility class for loading and parsing spritesheets
     def __init__(self, filename):
@@ -26,6 +29,7 @@ class Spritesheet:
         image = pg.transform.scale(image, (width * 1, height * 1))
         return image
     
+
 
 # _________ Player Class___________
 class Player(pg.sprite.Sprite):
@@ -63,13 +67,13 @@ class Player(pg.sprite.Sprite):
     def get_keys(self):
         self.vx, self.vy = 0, 0
         keys = pg.key.get_pressed()
-        if keys[pg.K_LEFT] or keys[pg.K_a]:
+        if keys[pg.K_LEFT]:
             self.vx = -self.speed  
-        if keys[pg.K_RIGHT] or keys[pg.K_d]:
+        if keys[pg.K_RIGHT]:
             self.vx = self.speed  
-        if keys[pg.K_UP] or keys[pg.K_w]:
+        if keys[pg.K_UP]:
             self.vy = -self.speed 
-        if keys[pg.K_DOWN] or keys[pg.K_s]:
+        if keys[pg.K_DOWN]:
             self.vy = self.speed
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
@@ -169,7 +173,152 @@ class Player(pg.sprite.Sprite):
         #     print("I got a coin")
 
 
-#______________ Mob Class ____________
+
+
+# _________________________ Player 2 Class_____________________________
+class Player2(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        # init super class
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        # self.image = game.player_img
+        #self.image.fill(GREEN)
+        self.spritesheet2 = Spritesheet(path.join(img_folder, SPRITESHEET2))
+        # needed for animated sprite
+        self.load_images()  
+        self.image = self.standing_frames[0]              
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0, 0
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.moneybag = 0
+        self.speed = 300
+        self.current_frame = 0
+        # needed for animated sprite
+        self.last_update = 0
+        self.material = True
+        # needed for animated sprite
+        self.jumping = False
+        # needed for animated sprite
+        self.walking = False
+        #finds player spawn
+    def detath(self):
+        self.x = self.game.p2col*TILESIZE
+        self.y = self.game.p2row*TILESIZE
+        print("You Died")
+    def get_keys(self):
+        self.vx, self.vy = 0, 0
+        keys = pg.key.get_pressed()
+        if keys[pg.K_a]:
+            self.vx = -self.speed  
+        if keys[pg.K_d]:
+            self.vx = self.speed  
+        if keys[pg.K_w]:
+            self.vy = -self.speed 
+        if keys[pg.K_s]:
+            self.vy = self.speed
+        if self.vx != 0 and self.vy != 0:
+            self.vx *= 0.7071
+            self.vy *= 0.7071
+    # def move(self, dx=0, dy=0):
+    #     if not self.collide_with_walls(dx, dy):
+    #         self.x += dx
+    #         self.y += dy
+    # def collide_with_walls(self, dx=0, dy=0):
+    #     for wall in self.game.walls:
+    #         if wall.x == self.x + dx and wall.y == self.y + dy:
+    #             return True
+    #     return False
+            
+
+    def load_images(self):
+        self.standing_frames = [self.spritesheet2.get_image(0,0, 32, 32), 
+                                self.spritesheet2.get_image(32,0, 32, 32)]
+        # for frame in self.standing_frames:
+        #     frame.set_colorkey(BLACK)
+
+        # add other frame sets for different poses etc.
+    # needed for animated sprite        
+    def animate(self):
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+            bottom = self.rect.bottom
+            self.image = self.standing_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+
+
+    #player wall collisions 
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vx > 0:
+                    self.x = hits[0].rect.left - self.rect.width
+                if self.vx < 0:
+                    self.x = hits[0].rect.right
+                self.vx = 0
+                self.rect.x = self.x
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = 0
+                self.rect.y = self.y
+
+    # player group collisions
+    def collide_with_group(self, group, kill):
+        hits = pg.sprite.spritecollide(self, group, kill)
+        if hits:
+            if str(hits[0].__class__.__name__) == "Coin":
+                self.moneybag += 1
+            # if str(hits[0].__class__.__name__) == "Projectile":
+            #     self.moneybag += 1
+            if str(hits[0].__class__.__name__) == "Deathblock":
+                self.detath()
+            if str(hits[0].__class__.__name__) == "Speedboost":
+                self.speed += 200
+            if str(hits[0].__class__.__name__) == "Speedbump":
+                self.speed -= 200
+            if str(hits[0].__class__.__name__) == "Mob":
+                self.detath()
+
+    def update(self):
+
+        # needed for animated sprite
+        self.animate()
+        self.get_keys()
+        self.get_keys()
+
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.x = self.x
+       
+        self.collide_with_walls('x')
+        self.rect.y = self.y
+        
+        self.collide_with_walls('y')
+        self.collide_with_group(self.game.coins, True)
+        # self.collide_with_group(self.game.projectiles, True)
+        self.collide_with_group(self.game.deathblocks, False)
+        self.collide_with_group(self.game.speedboost, True)
+        self.collide_with_group(self.game.speedbump, True)
+        self.collide_with_group(self.game.mobs, False)
+
+        # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
+        # if coin_hits:
+        #     print("I got a coin")
+
+
+
+#______________________ Mob Class _______________
 
 class Mob(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -225,6 +374,7 @@ class Mob(pg.sprite.Sprite):
         self.collide_with_walls('x')
         self.rect.y = self.y
         self.collide_with_walls('y')
+
 
 # _________wall class_____________
 class Wall(pg.sprite.Sprite):
@@ -304,3 +454,53 @@ class Speedbump (pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+
+# class Mob2(pg.sprite.Sprite):
+#     def __init__(self, game, x, y):
+#         self.groups = game.all_sprites, game.mobs
+#         pg.sprite.Sprite.__init__(self, self.groups)
+#         self.game = game
+#         # self.image = game.mob_img
+#         self.image = pg.Surface((TILESIZE, TILESIZE))
+#         self.image.fill(ORANGE)
+#         # self.image = self.game.mob2_img
+#         # self.image.set_colorkey(BLACK)
+#         self.rect = self.image.get_rect()
+#         # self.hit_rect = MOB_HIT_RECT.copy()
+#         self.hit_rect.center = self.rect.center
+#         self.pos = vec(x, y) * TILESIZE
+#         self.vel = vec(0, 0)
+#         self.acc = vec(0, 0)
+#         self.rect.center = self.pos
+#         self.rot = 0
+#         self.chase_distance = 500
+#         # added
+#         self.speed = 100
+#         self.chasing = True
+#         # self.health = MOB_HEALTH
+#         self.hitpoints = 100
+#     def sensor(self):
+#         if abs(self.rect.x - self.game.player.rect.x) < self.chase_distance and abs(self.rect.y - self.game.player.rect.y) < self.chase_distance:
+#             self.chasing = True
+#         else:
+#             self.chasing = False
+#     def update(self):
+#         if self.hitpoints <= 0:
+#             self.kill()
+#         # self.sensor()
+#         if self.chasing:
+#             self.rot = (self.game.player.rect.center - self.pos).angle_to(vec(1, 0))
+#             self.image = pg.transform.rotate(self.game.mob2_img, self.rot)
+#             self.rect = self.image.get_rect()
+#             self.rect.center = self.pos
+#             self.acc = vec(self.speed, 0).rotate(-self.rot)
+#             self.acc += self.vel * -1
+#             self.vel += self.acc * self.game.dt
+#             # equation of motion
+#             self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+#             # hit_rect used to account for adjusting the square collision when image rotates
+#             self.hit_rect.centerx = self.pos.x
+#             collide_with_walls(self, self.game.walls, 'x')
+#             self.hit_rect.centery = self.pos.y
+#             collide_with_walls(self, self.game.walls, 'y')
+#             self.rect.center = self.hit_rect.center

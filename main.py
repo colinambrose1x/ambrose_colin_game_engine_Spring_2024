@@ -16,7 +16,7 @@ TechwithTim
 BETA Goals:
 *animated spirtes
 
-Primary Goal: add a weapon
+Primary Goal: add player 2
 
 '''
 import pygame as pg
@@ -62,6 +62,7 @@ class Game:
         # pull images from folders 
         img_folder = path.join(game_folder, 'images')
         self.player_img = pg.image.load(path.join(img_folder, 'theBell.png')).convert_alpha()
+        self.player2_img = pg.image.load(path.join(img_folder, 'testImage.png')).convert_alpha()
         self.map_data = []
         '''
         The with statement is a context manager in Python. 
@@ -82,6 +83,8 @@ class Game:
         self.speedboost = pg.sprite.Group()
         self.speedbump = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
+        # self.mob2 = pg.sprite.Group()
+        # self.player2 = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)
         # for x in range(10, 20):
         #     Wall(self, x, 5)
@@ -100,6 +103,11 @@ class Game:
                     self.p1col = col
                     self.p1row = row
                     self.p1 = Player(self, self.p1col, self.p1row)
+                if tile == 'P':
+                    #finds thepalyers starting coordinates
+                    self.p2col = col
+                    self.p2row = row
+                    self.p2 = Player2(self, self.p2col, self.p2row)
                 if tile == 'd':
                     Deathblock(self, col, row)
                 if tile == 'S':
@@ -108,6 +116,8 @@ class Game:
                     Speedbump(self, col, row)
                 if tile == 'M':
                     Mob(self, col, row)
+                # if tile == 'm':
+                #     Mob2(self, col, row)
 
     def run(self):
         # runs game

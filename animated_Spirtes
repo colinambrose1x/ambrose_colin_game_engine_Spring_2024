@@ -5,6 +5,7 @@ from os import path
 
 BLACK = (0,0,0)
 SPRITESHEET = "theBell.png"
+SPRITESHEET2 = "testImage.png"
 
 TITLE = "Sprite"
 FONT_NAME = "arial"
@@ -31,7 +32,7 @@ class Spritesheet:
         # image = pg.transform.scale(image, (width, height))
         image = pg.transform.scale(image, (width * 4, height * 4))
         return image
-    
+
 # this is the player class
 class Animated_sprite(Sprite):
     def __init__(self):
@@ -75,3 +76,70 @@ class Animated_sprite(Sprite):
             self.rect.bottom = bottom
     def update(self):
         self.animate()
+
+
+#______________Spritesheet2__________
+class Spritesheet2:
+    # utility class for loading and parsing spritesheets
+    def __init__(self, filename):
+        self.spritesheet2 = pg.image.load(filename).convert()
+
+    def get_image(self, x, y, width, height):
+        # grab an image out of a larger spritesheet
+        image = pg.Surface((width, height))
+        image.blit(self.spritesheet2, (0, 0), (x, y, width, height))
+        # image = pg.transform.scale(image, (width, height))
+        image = pg.transform.scale(image, (width * 4, height * 4))
+        return image
+
+# this is the player class
+class Animated_sprite(Sprite):
+    def __init__(self):
+        Sprite.__init__(self)
+        self.spritesheet2 = Spritesheet2(path.join(img_dir, SPRITESHEET))
+        self.load_images()
+        self.image = self.standing_frames[0]
+        self.rect = self.image.get_rect()
+        self.jumping = False
+        self.walking = False
+        self.current_frame = 0
+        self.last_update = 0
+        
+    def load_images(self):
+        self.standing_frames = [self.spritesheet2.get_image(0, 0, 32, 32),
+                                self.spritesheet2.get_image(32, 0, 32, 32)]
+        for frame in self.standing_frames:
+            frame.set_colorkey(BLACK)
+        self.walk_frames_r = [self.spritesheet2.get_image(678, 860, 120, 201),
+                              self.spritesheet2.get_image(692, 1458, 120, 207)]
+        self.walk_frames_l = []
+        for frame in self.walk_frames_r:
+            frame.set_colorkey(BLACK)
+            self.walk_frames_l.append(pg.transform.flip(frame, True, False))
+        self.jump_frame = self.spritesheet2.get_image(256, 0, 128, 128)
+        self.jump_frame.set_colorkey(BLACK)
+    def animate(self):
+        now = pg.time.get_ticks()
+        if not self.jumping and not self.walking:
+            if now - self.last_update > 500:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                bottom = self.rect.bottom
+                self.image = self.standing_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+        if self.jumping:
+            bottom = self.rect.bottom
+            self.image = self.jump_frame
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+    def update(self):
+        self.animate()
+
+
+    
+
+
+
+
+
