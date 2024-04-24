@@ -83,6 +83,8 @@ class Game:
         self.speedboost = pg.sprite.Group()
         self.speedbump = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
+        self.pew_pews = pg.sprite.Group()
+        self.pew_pews2 = pg.sprite.Group()
         # self.mob2 = pg.sprite.Group()
         # self.player2 = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)

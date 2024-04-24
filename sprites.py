@@ -78,6 +78,9 @@ class Player(pg.sprite.Sprite):
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
             self.vy *= 0.7071
+        if keys[pg.K_RSHIFT]:
+            # when e is pressed then it shoots
+            self.pew()
     # def move(self, dx=0, dy=0):
     #     if not self.collide_with_walls(dx, dy):
     #         self.x += dx
@@ -107,6 +110,11 @@ class Player(pg.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
 
+    
+    def pew(self):
+        p = PewPews(self.game, self.rect.x, self.rect.y)
+        print(p.rect.x)
+        print(p.rect.y)
 
     #player wall collisions 
     def collide_with_walls(self, dir):
@@ -222,6 +230,8 @@ class Player2(pg.sprite.Sprite):
         if self.vx != 0 and self.vy != 0:
             self.vx *= 0.7071
             self.vy *= 0.7071
+        if keys[pg.K_e]:
+            self.pew2()
     # def move(self, dx=0, dy=0):
     #     if not self.collide_with_walls(dx, dy):
     #         self.x += dx
@@ -232,6 +242,11 @@ class Player2(pg.sprite.Sprite):
     #             return True
     #     return False
             
+
+    def pew2(self):
+        p = PewPews2(self.game, self.rect.x, self.rect.y)
+        print(p.rect.x)
+        print(p.rect.y)
 
     def load_images(self):
         self.standing_frames = [self.spritesheet2.get_image(0,0, 32, 32), 
@@ -390,18 +405,53 @@ class Wall(pg.sprite.Sprite):
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
     
-# class Projectile(pg.sprite.Sprite):
-#     def __init__(self, game, x, y):
-#         self.groups = game.all_sprites, game.projectiles
-#         pg.sprite.Sprite.__init__(self, self.groups)
-#         self.game = game
-#         self.image = pg.Surface((TILESIZE, TILESIZE))
-#         self.image.fill(WHITE)
-#         self.rect = self.image.get_rect()
-#         self.x = x
-#         self.y = y
-#         self.rect.x = x * TILESIZE
-#         self.rect.y = y * TILESIZE
+class PewPews(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.pew_pews
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/4, TILESIZE/4))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 10
+        print("I created a pew pew...")
+        # creating the design of the pew pew
+        # when the pew pew is shot it will say it is shot to show that it is happening
+    def collide_with_group(self, group, kill):
+        hits = pg.sprite.spritecollide(self, group, kill)
+    def update(self):
+        self.collide_with_group(self.game.mobs, True)
+        self.rect.y -= -self.speed
+        # self.rect.x -= self.speed
+        # will destory mobs when it hits it
+
+class PewPews2(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.pew_pews2
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/4, TILESIZE/4))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 10
+        print("I created a pew pew...")
+        # creating the design of the pew pew
+        # when the pew pew is shot it will say it is shot to show that it is happening
+    def collide_with_group(self, group, kill):
+        hits = pg.sprite.spritecollide(self, group, kill)
+    def update(self):
+        self.collide_with_group(self.game.mobs, True)
+        self.rect.y -= -self.speed
+        # self.rect.x -= self.speed
+        # will destory mobs when it hits it
 
 class Coin(pg.sprite.Sprite):
     def __init__(self, game, x, y):
