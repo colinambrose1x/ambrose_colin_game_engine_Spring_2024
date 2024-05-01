@@ -49,7 +49,7 @@ class Player(pg.sprite.Sprite):
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
         self.y = y * TILESIZE
-        self.moneybag = 0
+        self.p1.moneybag = 0
         self.speed = 300
         self.current_frame = 0
         # needed for animated sprite
@@ -142,7 +142,8 @@ class Player(pg.sprite.Sprite):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
             if str(hits[0].__class__.__name__) == "Coin":
-                self.moneybag += 1
+                self.p1.moneybag += 1
+                self.game.collect_sound.play()
             # if str(hits[0].__class__.__name__) == "Projectile":
             #     self.moneybag += 1
             if str(hits[0].__class__.__name__) == "Deathblock":
@@ -153,6 +154,9 @@ class Player(pg.sprite.Sprite):
                 self.speed -= 200
             if str(hits[0].__class__.__name__) == "Mob":
                 self.detath()
+            if str(hits[0].__class__.__name__) == "PewPews2":
+                self.detath()
+            
 
     def update(self):
 
@@ -175,6 +179,7 @@ class Player(pg.sprite.Sprite):
         self.collide_with_group(self.game.speedboost, True)
         self.collide_with_group(self.game.speedbump, True)
         self.collide_with_group(self.game.mobs, False)
+        self.collide_with_group(self.game.pew_pews2, False)
 
         # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
         # if coin_hits:
@@ -201,7 +206,7 @@ class Player2(pg.sprite.Sprite):
         self.vx, self.vy = 0, 0
         self.x = x * TILESIZE
         self.y = y * TILESIZE
-        self.moneybag = 0
+        self.p2.moneybag = 0
         self.speed = 300
         self.current_frame = 0
         # needed for animated sprite
@@ -294,6 +299,7 @@ class Player2(pg.sprite.Sprite):
         if hits:
             if str(hits[0].__class__.__name__) == "Coin":
                 self.moneybag += 1
+                self.game.collect_sound.play()
             # if str(hits[0].__class__.__name__) == "Projectile":
             #     self.moneybag += 1
             if str(hits[0].__class__.__name__) == "Deathblock":
@@ -303,6 +309,8 @@ class Player2(pg.sprite.Sprite):
             if str(hits[0].__class__.__name__) == "Speedbump":
                 self.speed -= 200
             if str(hits[0].__class__.__name__) == "Mob":
+                self.detath()
+            if str(hits[0].__class__.__name__) == "PewPews":
                 self.detath()
 
     def update(self):
@@ -326,6 +334,7 @@ class Player2(pg.sprite.Sprite):
         self.collide_with_group(self.game.speedboost, True)
         self.collide_with_group(self.game.speedbump, True)
         self.collide_with_group(self.game.mobs, False)
+        self.collide_with_group(self.game.pew_pews, False)
 
         # coin_hits = pg.sprite.spritecollide(self.game.coins, True)
         # if coin_hits:
@@ -404,7 +413,10 @@ class Wall(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+
     
+
+#___________________PewPews______________
 class PewPews(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.pew_pews
@@ -417,17 +429,64 @@ class PewPews(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x
         self.rect.y = y
-        self.speed = 10
+        self.vx, self.vy = 100, 100
+        self.speed = 20
+        self.moneybag = 0
         print("I created a pew pew...")
         # creating the design of the pew pew
+
         # when the pew pew is shot it will say it is shot to show that it is happening
+
+
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vx > 0:
+                    self.x = hits[0].rect.left - self.rect.width
+                if self.vx < 0:
+                    self.x = hits[0].rect.right
+                self.vx = 0
+                self.rect.x = self.x
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = 0
+                self.rect.y = self.y
+
+
     def collide_with_group(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
+        if hits:
+            if str(hits[0].__class__.__name__) == "Mobs":
+                self.kill
+            if str(hits[0].__class__.__name__) == "Coin":
+                self.moneybag += 1
+            if str(hits[0].__class__.__name__) == "Player2":
+                self.moneybag += 1
+
+                
     def update(self):
         self.collide_with_group(self.game.mobs, True)
-        self.rect.y -= -self.speed
-        # self.rect.x -= self.speed
+        self.collide_with_group(self.game.coins, True)
+        self.rect.y -= self.speed
+        # self.rect.x += self.speed
         # will destory mobs when it hits it
+        # self.x += self.vx * self.game.dt
+        self.y -= self.vy * self.game.dt
+        self.rect.x = self.x
+       
+        self.collide_with_walls('x')
+        self.rect.y = self.y
+        
+        self.collide_with_walls('y')
+        self.collide_with_group(self.game.player2, False)
+        
+
 
 class PewPews2(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -441,18 +500,63 @@ class PewPews2(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x
         self.rect.y = y
-        self.speed = 10
+        self.vx, self.vy = 100, 100
+        self.speed = 20
+        moneybag = 0
         print("I created a pew pew...")
         # creating the design of the pew pew
         # when the pew pew is shot it will say it is shot to show that it is happening
     def collide_with_group(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
+
+
+
+    def collide_with_walls(self, dir):
+        if dir == 'x':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vx > 0:
+                    self.x = hits[0].rect.left - self.rect.width
+                if self.vx < 0:
+                    self.x = hits[0].rect.right
+                self.vx = 0
+                self.rect.x = self.x
+        if dir == 'y':
+            hits = pg.sprite.spritecollide(self, self.game.walls, False)
+            if hits:
+                if self.vy > 0:
+                    self.y = hits[0].rect.top - self.rect.height
+                if self.vy < 0:
+                    self.y = hits[0].rect.bottom
+                self.vy = 0
+                self.rect.y = self.y
+
+    def collide_with_group(self, group, kill):
+        hits = pg.sprite.spritecollide(self, group, kill)
+        if hits:
+            if str(hits[0].__class__.__name__) == "Mobs":
+                self.kill
+            if str(hits[0].__class__.__name__) == "Coins":
+                self.moneybag += 1
+
     def update(self):
         self.collide_with_group(self.game.mobs, True)
-        self.rect.y -= -self.speed
+        self.collide_with_group(self.game.coins, True)
+        self.rect.y += self.speed
         # self.rect.x -= self.speed
         # will destory mobs when it hits it
+        # self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.x = self.x
+       
+        self.collide_with_walls('x')
+        self.rect.y = self.y
+        
+        self.collide_with_walls('y')
+        self.collide_with_group(self.game.player, True)
 
+
+#__________ Coin class______________________________________
 class Coin(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.coins

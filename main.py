@@ -22,9 +22,11 @@ Primary Goal: add player 2
 import pygame as pg
 from setting import *
 from sprites import *
-import sys
-from os import path 
+from utils import *
 from random import randint
+import sys
+from os import path
+# added this math function to round down the clock
 from math import floor
 
 #cooldown class
@@ -59,11 +61,13 @@ class Game:
         self.load_data()
     def load_data(self):
         game_folder = path.dirname(__file__)
+        self.snd_folder = path.join(game_folder, 'sounds')
         # pull images from folders 
         img_folder = path.join(game_folder, 'images')
         self.player_img = pg.image.load(path.join(img_folder, 'theBell.png')).convert_alpha()
         self.player2_img = pg.image.load(path.join(img_folder, 'testImage.png')).convert_alpha()
         self.map_data = []
+
         '''
         The with statement is a context manager in Python. 
         It is used to ensure that a resource is properly closed or released 
@@ -75,6 +79,11 @@ class Game:
                 self.map_data.append(line)
     # Create run method which runs the whole GAME
     def new(self):
+
+         # loading sound for use...not used yet
+        # pg.mixer.music.load(path.join(self.sound_folder, 'soundtrack2.mp3'))
+        self.collect_sound = pg.mixer.Sound(path.join(self.snd_folder, 'mixkit-arcade-video-game-bonus-2044.mp3'))
+        
         print("create new game...")
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
@@ -85,6 +94,8 @@ class Game:
         self.mobs = pg.sprite.Group()
         self.pew_pews = pg.sprite.Group()
         self.pew_pews2 = pg.sprite.Group()
+        self.player = pg.sprite.Group()
+        self.player2 = pg.sprite.Group()
         # self.mob2 = pg.sprite.Group()
         # self.player2 = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)
@@ -143,6 +154,24 @@ class Game:
          for y in range(0, HEIGHT, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
+    def show_start_screen(self):
+        self.screen.fill(BGCOLOR)
+        self.draw_text(self.screen, "Press any button to begin", 24, WHITE, 2, 3)
+        pg.display.flip()
+        self.wait_for_key()
+
+
+    def wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.clock.tick(FPS)
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    waiting = False
+                    self.quit()
+                if event.type == pg.KEYUP:
+                    waiting = False
+
     # shows clock on screen
     def draw_text(self, surface, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
@@ -156,7 +185,8 @@ class Game:
             self.screen.fill(BGCOLOR)
             self.draw_grid()
             self.all_sprites.draw(self.screen)
-            self.draw_text(self.screen, str(self.p1.moneybag), 64, WHITE, 1, 1)
+            self.draw_text(self.screen, str(self.p2.moneybag), 64, WHITE, 1, 0.75)
+            self.draw_text(self.screen, str(self.p1.moneybag), 64, WHITE, 30, 21)
             #self.draw_text(self.screen, str(self.test_timer.countdown(45)), 24, WHITE, WIDTH/2 - 32, 2)
             pg.display.flip()
 
@@ -185,7 +215,7 @@ class Game:
             #         self.player.move(dy=1)
 ####################### Instantiate game... ###################
 g = Game()
-
+g.show_start_screen()
 # g.show_go_screen()
 while True:
     g.new()
