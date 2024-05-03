@@ -96,6 +96,7 @@ class Game:
         self.pew_pews2 = pg.sprite.Group()
         self.player = pg.sprite.Group()
         self.player2 = pg.sprite.Group()
+        self.dividers = pg.sprite.Group()
         # self.mob2 = pg.sprite.Group()
         # self.player2 = pg.sprite.Group()
         # self.player1 = Player(self, 1, 1)
@@ -129,6 +130,8 @@ class Game:
                     Speedbump(self, col, row)
                 if tile == 'M':
                     Mob(self, col, row)
+                if tile == 'D':
+                    Divider(self, col, row)
                 # if tile == 'm':
                 #     Mob2(self, col, row)
 
@@ -154,9 +157,10 @@ class Game:
          for y in range(0, HEIGHT, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
+    #start screen
     def show_start_screen(self):
         self.screen.fill(BGCOLOR)
-        self.draw_text(self.screen, "Press any button to begin", 24, WHITE, 2, 3)
+        self.draw_text(self.screen, "Press any button to begin/ashoot the other player can collect coins to to win", 24, WHITE, 2, 3)
         pg.display.flip()
         self.wait_for_key()
 
@@ -185,8 +189,8 @@ class Game:
             self.screen.fill(BGCOLOR)
             self.draw_grid()
             self.all_sprites.draw(self.screen)
-            self.draw_text(self.screen, str(self.p2.moneybag), 64, WHITE, 1, 0.75)
             self.draw_text(self.screen, str(self.p1.moneybag), 64, WHITE, 30, 21)
+            self.draw_text(self.screen, str(self.p2.moneybag), 64, WHITE, 1, 0.75)
             #self.draw_text(self.screen, str(self.test_timer.countdown(45)), 24, WHITE, WIDTH/2 - 32, 2)
             pg.display.flip()
 
