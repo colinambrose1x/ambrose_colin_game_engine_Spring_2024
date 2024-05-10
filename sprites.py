@@ -5,7 +5,8 @@ from os import path
 import pygame as pg
 from setting import *
 from utils import *
-
+import random
+from random import randint
 vec =pg.math.Vector2
 
 # needed for animated sprite
@@ -34,6 +35,9 @@ class Spritesheet:
 # _________ Player Class___________
 class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        # self.shoot_delay = 500000  # Time between shots in milliseconds
+        # self.last_shot = pg.time.get_ticks()  # Time when the player last shot
+
         self.groups = game.all_sprites
         # init super class
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -50,7 +54,7 @@ class Player(pg.sprite.Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.moneybag = 0
-        self.speed = 300
+        self.speed = 200
         self.current_frame = 0
         # needed for animated sprite
         self.last_update = 0
@@ -79,8 +83,8 @@ class Player(pg.sprite.Sprite):
             self.vx *= 0.7071
             self.vy *= 0.7071
         if keys[pg.K_RSHIFT]:
-            # when e is pressed then it shoots
-            self.pew()
+            # when rihtshift is pressed then it shoots
+            self.shoot()
     # def move(self, dx=0, dy=0):
     #     if not self.collide_with_walls(dx, dy):
     #         self.x += dx
@@ -111,7 +115,7 @@ class Player(pg.sprite.Sprite):
             self.rect.bottom = bottom
 
     
-    def pew(self):
+    def shoot(self):
         p = PewPews(self.game, self.rect.x, self.rect.y)
         print(p.rect.x)
         print(p.rect.y)
@@ -164,9 +168,12 @@ class Player(pg.sprite.Sprite):
     def collide_with_group(self, group, kill):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
-            if str(hits[0].__class__.__name__) == "Coin":
-                self.moneybag += 1
-                self.game.collect_sound.play()
+            for hit in hits:
+                if str(hit.__class__.__name__) == "Coin":
+            # if str(hits[0].__class__.__name__) == "Coin":
+                    self.moneybag += 1
+                    self.game.collect_sound.play()
+                    hit.respawn() 
             # if str(hits[0].__class__.__name__) == "Projectile":
             #     self.moneybag += 1
             if str(hits[0].__class__.__name__) == "Deathblock":
@@ -179,11 +186,28 @@ class Player(pg.sprite.Sprite):
                 self.detath()
             if str(hits[0].__class__.__name__) == "PewPews2":
                 self.detath()
+                self.moneybag -= 1
+
+        # def collide_with_group(self, group, kill):
+        #     hits = pg.sprite.spritecollide(self, group, kill)
+        # if hits:
+        #     for hit in hits:
+        #         if str(hit.__class__.__name__) == "Coin":
+        #             self.moneybag += 1
+        #             self.game.collect_sound.play()
+        #             hit.respawn() 
             
 
     def update(self):
 
-        # needed for animated sprite
+        #    # Check if enough time has passed since the last shot
+        # now = pg.time.get_ticks()
+        # if now - self.last_shot >= self.shoot_delay:
+        #     # Handle shooting logic here
+        #     self.get_keys()  # Check for shooting input
+        #     if pg.key.get_pressed()[pg.K_RSHIFT]:
+        #         self.last_shot = now  
+
         self.animate()
         self.get_keys()
         self.get_keys()
@@ -238,7 +262,7 @@ class Player2(pg.sprite.Sprite):
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.moneybag = 0
-        self.speed = 300
+        self.speed = 200
         self.current_frame = 0
         # needed for animated sprite
         self.last_update = 0
@@ -364,7 +388,7 @@ class Player2(pg.sprite.Sprite):
                 self.detath()
             if str(hits[0].__class__.__name__) == "PewPews":
                 self.detath()
-                # self.moneybag += 1
+                self.moneybag -= 1
     def update(self):
 
         # needed for animated sprite
@@ -623,7 +647,7 @@ class PewPews2(pg.sprite.Sprite):
                 self.kill()
 
     def update(self):
-        self.collide_with_group(self.game.mobs, True)
+        # self.collide_with_group(self.game.mobs, True)
         self.collide_with_group(self.game.coins, True)
         self.rect.y += self.speed
         # self.rect.x -= self.speed
@@ -652,7 +676,28 @@ class Coin(pg.sprite.Sprite):
         self.y = y
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
+        self.cooling = False
+            # Add a timer for the next spawn
+        # self.spawn_delay = random.randint(10000, 50000) 
+        #  # Random delay between 1 to 5 seconds
+        # self.spawn_timer = 0  
+        # Timer to count the time passed since last spawn
 
+    def respawn(self):
+        # Respawn the coin at a new position
+        self.rect.x = random.randint(0, WIDTH // TILESIZE) * TILESIZE
+        self.rect.y = random.randint(0, HEIGHT // TILESIZE) * TILESIZE
+
+    # def update(self):
+        # Increment the timer
+        # if not self.cooling:
+        #     self.spawn_timer = 0  # Reset timer
+    
+        #     self.spawn(random.randint(0, WIDTH // TILESIZE), random.randint(0, HEIGHT // TILESIZE))
+        #     self.game.cooldown.cd = 4
+        #     self.cooling= True
+        # if self.game.cooldown.cd < 1:
+        #     self.cooling = False
 
 #_________________________ Deathblock_________________________________________________
 class Deathblock(pg.sprite.Sprite):
