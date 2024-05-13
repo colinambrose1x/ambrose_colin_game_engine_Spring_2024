@@ -142,7 +142,7 @@ class Game:
                 # if tile == 'm':
                 #     Mob2(self, col, row)
 
-    # AI
+    # AI help
     def respawn_coins(self):
         num_coins = len(self.coins)
         respawn_threshold = 3  # Adjusted threshold for testing
