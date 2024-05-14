@@ -37,7 +37,8 @@ class Player(pg.sprite.Sprite):
     def __init__(self, game, x, y):
         # self.shoot_delay = 500000  # Time between shots in milliseconds
         # self.last_shot = pg.time.get_ticks()  # Time when the player last shot
-
+        self.last_shot_time = 0 
+         # Initialize the last shot time
         self.groups = game.all_sprites
         # init super class
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -116,10 +117,14 @@ class Player(pg.sprite.Sprite):
 
     
     def shoot(self):
-        p = PewPews(self.game, self.rect.x, self.rect.y)
-        print(p.rect.x)
-        print(p.rect.y)
-
+        current_time = pg.time.get_ticks()  # Get the current time in milliseconds
+        if current_time - self.last_shot_time >= 120:  
+            p = PewPews(self.game, self.rect.x, self.rect.y)
+            self.last_shot_time = current_time  # Update the last shot time
+            print("Player shot!")
+        else:
+            print("Cannot shoot yet. Cooldown in progress.")
+            
     #player wall collisions 
     def collide_with_walls(self, dir):
         if dir == 'x':
@@ -171,7 +176,7 @@ class Player(pg.sprite.Sprite):
             for hit in hits:
                 if str(hit.__class__.__name__) == "Coin":
             # if str(hits[0].__class__.__name__) == "Coin":
-                    self.moneybag += 1
+                    self.moneybag += 2
                     self.game.collect_sound.play()
                     hit.respawn() 
             # if str(hits[0].__class__.__name__) == "Projectile":
@@ -246,6 +251,7 @@ class Player(pg.sprite.Sprite):
 # _________________________ Player 2 Class_____________________________
 class Player2(pg.sprite.Sprite):
     def __init__(self, game, x, y):
+        self.last_shot_time = 0
         self.groups = game.all_sprites
         # init super class
         pg.sprite.Sprite.__init__(self, self.groups)
@@ -291,22 +297,16 @@ class Player2(pg.sprite.Sprite):
             self.vx *= 0.7071
             self.vy *= 0.7071
         if keys[pg.K_e]:
-            self.pew2()
-    # def move(self, dx=0, dy=0):
-    #     if not self.collide_with_walls(dx, dy):
-    #         self.x += dx
-    #         self.y += dy
-    # def collide_with_walls(self, dx=0, dy=0):
-    #     for wall in self.game.walls:
-    #         if wall.x == self.x + dx and wall.y == self.y + dy:
-    #             return True
-    #     return False
-            
-
-    def pew2(self):
-        p = PewPews2(self.game, self.rect.x, self.rect.y)
-        print(p.rect.x)
-        print(p.rect.y)
+            self.shoot2()
+   
+    def shoot2(self):
+        current_time = pg.time.get_ticks()  # Get the current time in milliseconds
+        if current_time - self.last_shot_time >= 120:  # Check if it's been at least 2 seconds
+            p = PewPews2(self.game, self.rect.x, self.rect.y)
+            self.last_shot_time = current_time  # Update the last shot time
+            print("Player shot!")
+        else:
+            print("Cannot shoot yet. Cooldown in progress.")
 
     def load_images(self):
         self.standing_frames = [self.spritesheet2.get_image(0,0, 32, 32), 
@@ -325,7 +325,6 @@ class Player2(pg.sprite.Sprite):
             self.image = self.standing_frames[self.current_frame]
             self.rect = self.image.get_rect()
             self.rect.bottom = bottom
-
 
     #player wall collisions 
     def collide_with_walls(self, dir):
@@ -374,7 +373,7 @@ class Player2(pg.sprite.Sprite):
         hits = pg.sprite.spritecollide(self, group, kill)
         if hits:
             if str(hits[0].__class__.__name__) == "Coin":
-                self.moneybag += 1
+                self.moneybag += 2
                 self.game.collect_sound.play()
             # if str(hits[0].__class__.__name__) == "Projectile":
             #     self.moneybag += 1
@@ -536,10 +535,7 @@ class PewPews(pg.sprite.Sprite):
         self.vx, self.vy = 200, 200
         self.speed = 200
         self.moneybag = 0
-        
         print("I created a pew pew...")
-        # creating the design of the pew pew
-
         # when the pew pew is shot it will say it is shot to show that it is happening
 
 
@@ -570,11 +566,11 @@ class PewPews(pg.sprite.Sprite):
         for hit in hits:
             if isinstance(hit, Mob):
                 self.kill()
-            # elif isinstance(hit, Coin):
-            #     self.moneybag += 1
-            elif isinstance(hit, Player2):
-                hit.moneybag += 1
-                self.kill()
+            elif isinstance(hit, Coin):
+                self.moneybag += 1
+            # elif isinstance(hit, Player2):
+            #     hit.moneybag += 1
+            #     self.kill()
 
                 
     def update(self):
@@ -591,7 +587,7 @@ class PewPews(pg.sprite.Sprite):
         self.rect.y = self.y
         
         self.collide_with_walls('y')
-        self.collide_with_group(self.game.player2, False)
+        # self.collide_with_group(self.game.player2, False)
         
 
 #______________________PEWPEWS 2_____________________________________
@@ -601,7 +597,7 @@ class PewPews2(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE/4, TILESIZE/4))
-        self.image.fill(RED)
+        self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -647,7 +643,7 @@ class PewPews2(pg.sprite.Sprite):
                 self.kill()
 
     def update(self):
-        # self.collide_with_group(self.game.mobs, True)
+        self.collide_with_group(self.game.mobs, True)
         self.collide_with_group(self.game.coins, True)
         self.rect.y += self.speed
         # self.rect.x -= self.speed
@@ -660,7 +656,7 @@ class PewPews2(pg.sprite.Sprite):
         self.rect.y = self.y
         
         self.collide_with_walls('y')
-        self.collide_with_group(self.game.player, True)
+        # self.collide_with_group(self.game.player, True)
 
 
 #________________________________________Coin class______________________________________

@@ -12,6 +12,7 @@ Kids can code: https://github.com/kidscancode/pygame_tutorials/tree/master/tilem
 Stack overflow
 Redit
 TechwithTim
+Chatgpt
 
 BETA Goals:
 *animated spirtes
@@ -87,6 +88,8 @@ class Game:
 
     def new(self):
 
+         # Initialize coins with a fixed number at predetermined positions
+        self.init_coins()
          # loading sound for use...not used yet
         # pg.mixer.music.load(path.join(self.sound_folder, 'soundtrack2.mp3'))
         self.collect_sound = pg.mixer.Sound(path.join(self.snd_folder, 'mixkit-arcade-video-game-bonus-2044.mp3'))
@@ -142,35 +145,17 @@ class Game:
                 # if tile == 'm':
                 #     Mob2(self, col, row)
 
-    # AI help
-    def respawn_coins(self):
-        num_coins = len(self.coins)
-        respawn_threshold = 3  # Adjusted threshold for testing
-        print("Number of coins:", num_coins)
-        if num_coins < respawn_threshold:
-            for _ in range(respawn_threshold - num_coins):
-                max_attempts = 100  # Maximum number of attempts for generating a valid position
-                attempts = 0
-                while attempts < max_attempts:
-                    x = random.randint(0, WIDTH // TILESIZE)
-                    y = random.randint(0, HEIGHT // TILESIZE)
-                    print("Attempting to respawn coin at:", x, y)
-                    wall_collision = any(isinstance(sprite, Wall) for sprite in self.all_sprites.sprites())
-                    coin_collision = any(sprite.rect.collidepoint(x, y) for sprite in self.coins.sprites())
-                    if not wall_collision and not coin_collision:
-                        print("Valid position found for new coin.")
-                        Coin(self, x, y)
-                        break  # Break out of the while loop once a valid position is found
-                    else:
-                        print("Position occupied. Trying another position.")
-                        attempts += 1
-                else:
-                    print("Maximum attempts reached. Cannot respawn coin.")
-                    break  # Break out of the for loop if maximum attempts are reached
+
+# AI inspired
+    def init_coins(self):
+    # Define the predetermined positions for coins
+        all_coin_positions = [(3, 7), (9, 10), (17, 14), (12, 5), (5, 18), (23, 12), (6, 4), (20, 15), (14, 9), (27, 20), (7, 3), (19, 17), (13, 6), (25, 14), (2, 20)]  # Example positions
+        # Create coins at the predetermined positions
+        chosen_positions = random.sample(all_coin_positions, 7)
+        for pos in chosen_positions:
+            Coin(self, pos[0], pos[1])
 
 
-
-    
     def run(self):         
         # runs game
         self.playing = True
@@ -189,11 +174,16 @@ class Game:
 
     def update(self):
         
-        self.respawn_coins()  # Call the method to respawn coins
+        
         self.all_sprites.update()
         # self.test_timer.ticking()
 
+         # Check if all coins are collected
+        if len(self.coins) == 0:
+        # Reset the level with a new set of coins
+            self.init_coins()
     # makes grid appear on screen
+
     def draw_grid(self):
          for x in range(0, WIDTH, TILESIZE):
               pg.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
