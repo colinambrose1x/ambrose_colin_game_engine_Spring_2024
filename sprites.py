@@ -117,10 +117,12 @@ class Player(pg.sprite.Sprite):
 
     
     def shoot(self):
-        current_time = pg.time.get_ticks()  # Get the current time in milliseconds
+        current_time = pg.time.get_ticks() 
+         # Get the current time in milliseconds
         if current_time - self.last_shot_time >= 120:  
             p = PewPews(self.game, self.rect.x, self.rect.y)
-            self.last_shot_time = current_time  # Update the last shot time
+            self.last_shot_time = current_time 
+             # Update the last shot time
             print("Player shot!")
         else:
             print("Cannot shoot yet. Cooldown in progress.")
@@ -496,7 +498,7 @@ class Wall(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(BLUE)
+        self.image.fill(LIGHTGREY)
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -566,16 +568,19 @@ class PewPews(pg.sprite.Sprite):
         for hit in hits:
             if isinstance(hit, Mob):
                 self.kill()
+            if isinstance(hit, Wall):
+                self.kill()
             elif isinstance(hit, Coin):
-                self.moneybag += 1
+                self.kill
             # elif isinstance(hit, Player2):
-            #     hit.moneybag += 1
-            #     self.kill()
+            #      hit.moneybag += 1
+            #      self.kill()
 
                 
     def update(self):
         self.collide_with_group(self.game.mobs, True)
         self.collide_with_group(self.game.coins, True)
+        self.collide_with_group(self.game.walls, False)
         self.rect.y -= self.speed
         # self.rect.x += self.speed
         # will destory mobs when it hits it
@@ -605,7 +610,7 @@ class PewPews2(pg.sprite.Sprite):
         self.rect.y = y
         self.vx, self.vy = 200, 200
         self.speed = 100
-        # moneybag = 0
+        moneybag = 0
         print("I created a pew pew...")
         # creating the design of the pew pew
         # when the pew pew is shot it will say it is shot to show that it is happening
@@ -636,15 +641,17 @@ class PewPews2(pg.sprite.Sprite):
         for hit in hits:
             if isinstance(hit, Mob):
                 self.kill()
-            # elif isinstance(hit, Coin):
-            #     self.moneybag += 1
-            elif isinstance(hit, Player):
-                hit.moneybag += 1
+            if isinstance(hit, Wall):
                 self.kill()
+            elif isinstance(hit, Coin):
+                 self.kill
+            # elif isinstance(hit, Player):
+            #     self.kill()
 
     def update(self):
         self.collide_with_group(self.game.mobs, True)
         self.collide_with_group(self.game.coins, True)
+        self.collide_with_group(self.game.walls, False)
         self.rect.y += self.speed
         # self.rect.x -= self.speed
         # will destory mobs when it hits it

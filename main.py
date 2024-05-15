@@ -151,7 +151,7 @@ class Game:
     # Define the predetermined positions for coins
         all_coin_positions = [(3, 7), (9, 10), (17, 14), (12, 5), (5, 18), (23, 12), (6, 4), (20, 15), (14, 9), (27, 20), (7, 3), (19, 17), (13, 6), (25, 14), (2, 20)]  # Example positions
         # Create coins at the predetermined positions
-        chosen_positions = random.sample(all_coin_positions, 7)
+        chosen_positions = random.sample(all_coin_positions, 2)
         for pos in chosen_positions:
             Coin(self, pos[0], pos[1])
 
